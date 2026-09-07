@@ -2,38 +2,56 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iglesia Ascender</title>
+<title>Iglesia Ascender - Estacionamiento</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box;font-family:system-ui}body{margin:0;background:#0A1931;padding:12px;color:#fff}
-.header{background:#fff;color:#0A1931;padding:14px;border-radius:14px;display:flex;align-items:center;gap:12px}
-.card{background:#fff;color:#0A1931;border-radius:12px;padding:14px;margin:12px 0}
-.btn{width:100%;padding:14px;background:#0A1931;color:#C9A86A;border:none;border-radius:10px;font-weight:800;margin:6px 0;cursor:pointer}
-.btn-blue{background:#0d6efd;color:#fff} input{width:100%;padding:11px;border:1px solid #ccc;border-radius:8px;margin:4px 0}
-.badge{padding:4px 8px;border-radius:6px;font-size:12px}.in{background:#dcfce7;color:#166534}.out{background:#fee2e2;color:#991b1b}
-.list{border-bottom:1px solid #eee;padding:10px 0;display:flex;justify-content:space-between}
-#qrBox{background:#fff;padding:16px;border-radius:12px;text-align:center;margin-top:12px;border:2px solid #0A1931;display:none}
-#qrBox img{width:220px;height:220px;margin:0 auto;display:block}
+*{box-sizing:border-box;font-family:system-ui, -apple-system}body{margin:0;background:#f1f5f9;padding:12px;color:#0f172a}
+.header{background:#fff;padding:16px;border-radius:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e2e8f0}
+.logo{width:60px;height:60px;background:#0f172a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;color:#fff}
+.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #e2e8f0}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;margin:6px 0;cursor:pointer;font-size:14px;transition:.2s}
+.btn-green{background:#16a34a;color:#fff}.btn-green:hover{background:#15803d}
+.btn-red{background:#dc2626;color:#fff}.btn-red:hover{background:#b91c1c}
+.btn-blue{background:#2563eb;color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-dark{background:#0f172a;color:#fff}
+input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0;outline:none}input:focus{border-color:#0f172a}
+.badge{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:800}.in{background:#dcfce7;color:#166534}.out{background:#fee2e2;color:#991b1b}
+.list{border-bottom:1px solid #f1f5f9;padding:12px 0;display:flex;justify-content:space-between;align-items:center}
+#qrBox{background:#fff;padding:20px;border-radius:16px;text-align:center;margin-top:12px;border:2px dashed #16a34a;display:none}
+.live{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}
 </style>
 </head>
 <body>
-<div class="header"><div style="width:64px;height:64px;background:#0A1931;border-radius:14px;display:flex;align-items:center;justify-content:center;border:2px solid #C9A86A;flex-shrink:0">
-  <span style="font-weight:900;font-size:28px;background: linear-gradient(135deg, #8A2BE2 0%, #FF69B4 50%, #FF8C00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">AS</span>
-</div><div><b>ASCENDER IGLESIA</b><br>PASE ESTACIONAMIENTO<br><small>Donado por CC INNOVACION</small></div></div>
+<div class="header"><div class="logo">AS</div><div><b style="font-size:16px">ASCENDER IGLESIA</b><br><small style="color:#64748b">PASE ESTACIONAMIENTO • CC INNOVACION • <span id="estado" class="live">● Conectando...</span></small></div></div>
 
-<div class="card"><h3>Escanear Entrada / Salida</h3><button class="btn btn-blue" onclick="startScan()">INICIAR ESCANER QR</button><div id="reader"></div></div>
-<div class="card"><h3>Autos Dentro: <span id="count">0</span></h3><div id="inside"></div><button class="btn" style="background:#C9A86A;color:#0A1931" onclick="exportCSV()">EXPORTAR REPORTE</button></div>
-<div class="card"><h3>Buscar Dueño</h3><input id="search" placeholder="JXA306A" oninput="search()"><div id="searchRes"></div></div>
+<div class="card"><h3 style="margin:0 0 10px 0">📷 Escanear Entrada / Salida</h3><button class="btn btn-blue" onclick="startScan()">INICIAR ESCÁNER QR</button><div id="reader" style="margin-top:10px"></div></div>
 
-<div class="card"><h3>Registrar Nuevo Auto</h3>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">🚗 Autos Dentro: <span id="count" style="color:#16a34a">0</span> / 39</h3><button onclick="exportCSV()" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px">Exportar</button></div><div id="inside" style="margin-top:10px"></div></div>
 
-<input id="id" placeholder="ID CC-004"><input id="nombre" placeholder="Nombre"><input id="placa" placeholder="Placa"><input id="modelo" placeholder="Modelo"><input id="color" placeholder="Color">
-<button class="btn btn-blue" onclick="genPass()">REGISTRAR Y GENERAR QR</button>
+<div class="card"><h3 style="margin:0 0 10px 0">🔍 Buscar Dueño</h3><input id="search" placeholder="Busca por placa JUC4688 o nombre" oninput="search()"><div id="searchRes"></div></div>
+
+<div class="card"><h3 style="margin:0 0 10px 0">➕ Registrar Nuevo Auto</h3>
+<input id="id" placeholder="ID Ej: CC-040"><input id="nombre" placeholder="Nombre completo"><input id="placa" placeholder="Placa"><input id="modelo" placeholder="Modelo"><input id="color" placeholder="Color">
+<button class="btn btn-green" onclick="genPass()">✅ REGISTRAR Y GENERAR QR</button>
 <div id="qrBox"></div>
 </div>
 
-<script>
-let autos=JSON.parse(localStorage.getItem('autosAscender')||'null')||[
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, push, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyBZXQ9TuS4fnm-n5yIv2SsQmKyX_PVP75s",
+  authDomain: "ascender-estacionamiento.firebaseapp.com",
+  databaseURL: "https://ascender-estacionamiento-default-rtdb.firebaseio.com",
+  projectId: "ascender-estacionamiento",
+  storageBucket: "ascender-estacionamiento.firebasestorage.app",
+  messagingSenderId: "60545755030",
+  appId: "1:60545755030:web:8577f6f53ac06311f09fb7"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const autosRef = ref(db,'autos'); const regsRef = ref(db,'regs');
+let autosBase=[
 {"id":"CC-001","nombre":"CELESTE NAJAR","placa":"JUC4688","modelo":"Cruze Cruze","color":"Rojo"},
 {"id":"CC-002","nombre":"GERARDO COMPARAN","placa":"LCL359A","modelo":"Chevrolet Truck 2026","color":"Gris Tiburón"},
 {"id":"CC-003","nombre":"SILVIA SANDOVAL","placa":"HVM474A","modelo":"Nissan Versa 2024","color":"Blanco"},
@@ -74,34 +92,17 @@ let autos=JSON.parse(localStorage.getItem('autosAscender')||'null')||[
 {"id":"CC-038","nombre":"MAURICIO GONZALEZ","placa":"KXW962A","modelo":"Nissan Nissan","color":"Blanco"},
 {"id":"CC-039","nombre":"ANGEL QUEZADA","placa":"KDM350A","modelo":"Mazda CX50","color":"Blanca"}
 ];
-let regs=JSON.parse(localStorage.getItem('regsAscender')||'[]');
-function save(){localStorage.setItem('autosAscender',JSON.stringify(autos));localStorage.setItem('regsAscender',JSON.stringify(regs));render();}
+let autos=[], regs=[], regsRaw={};
+onValue(autosRef, s=>{let v=s.val(); if(!v){let o={};autosBase.forEach(a=>o[a.id]=a);set(autosRef,o);} else {autos=Object.values(v); document.getElementById('estado').innerText='● En vivo'; render(); search();}});
+onValue(regsRef, s=>{regsRaw=s.val()||{}; regs=Object.entries(regsRaw).map(([k,v])=>({...v,_key:k})); render();});
 
-function genPass(){
-  let idV=document.getElementById('id').value.trim().toUpperCase();
-  let nomV=document.getElementById('nombre').value.trim().toUpperCase();
-  let placaV=document.getElementById('placa').value.trim().toUpperCase();
-  if(!idV||!placaV) return alert('Falta ID y Placa');
-  let c={id:idV,nombre:nomV,placa:placaV,modelo:document.getElementById('modelo').value, color:document.getElementById('color').value};
-  let e=autos.find(a=>a.id==c.id); if(e) Object.assign(e,c); else autos.push(c);
-  save(); mostrarQR(c.id+'|'+c.nombre+'|'+c.placa, true);
-}
-
-function mostrarQR(texto, esNuevo){
-  let box=document.getElementById('qrBox');
-  box.style.display='block';
-  let p=texto.split('|');
-  let urlQR = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(texto);
-  box.innerHTML = `<img src="${urlQR}" alt="QR"><div style="margin-top:12px;color:#0A1931"><b style="font-size:18px">${p[1]}</b><br>${p[2]}<br><small style="color:${esNuevo?'green':'#0A1931'}">${esNuevo?'✅ QR GENERADO':'🔄 QR RECUPERADO'} - ${p[0]}</small><br><br><button onclick="window.open('${urlQR}')" style="padding:8px 12px;background:#0A1931;color:#C9A86A;border-radius:8px;border:none">DESCARGAR / IMPRIMIR QR</button></div>`;
-  box.scrollIntoView({behavior:'smooth'});
-}
-
-let qr;function startScan(){qr=new Html5Qrcode('reader');qr.start({facingMode:'environment'},{fps:10,qrbox:250},(txt)=>{registrar(txt);qr.stop();document.getElementById('reader').innerHTML='';},()=>{});}
-function registrar(code){let p=code.split('|');let id=p[0];let placa=p[2]||code;let auto=autos.find(a=>a.id==id||a.placa==placa);if(!auto)return alert('No encontrado: '+code);let ab=regs.find(r=>r.id==auto.id&&!r.salida);if(ab){ab.salida=new Date().toLocaleString();alert('SALIDA: '+auto.nombre);}else{regs.push({id:auto.id,nombre:auto.nombre,placa:auto.placa,entrada:new Date().toLocaleString(),salida:null});alert('ENTRADA: '+auto.nombre);}save();}
-function render(){let dentro=regs.filter(r=>!r.salida);document.getElementById('count').innerText=dentro.length;document.getElementById('inside').innerHTML=dentro.map(r=>'<div class=list><span><b>'+r.placa+'</b> - '+r.nombre+'</span><span class=badge in>DENTRO</span></div>').join('')||'<small>Nadie dentro</small>';search();}
-function search(){let q=document.getElementById('search').value.toUpperCase();let res=document.getElementById('searchRes');if(!q){res.innerHTML='';return;}let f=autos.filter(a=>a.placa.includes(q)||a.nombre.toUpperCase().includes(q));res.innerHTML=f.map(a=>{let d=regs.find(r=>r.id==a.id&&!r.salida);return '<div class=list><div><b>'+a.nombre+'</b><br>'+a.placa+'<br><small>'+a.id+'</small><br><button onclick="mostrarQR(\''+a.id+'|'+a.nombre+'|'+a.placa+'\')" style="margin-top:6px;padding:5px 10px;background:#0A1931;color:#C9A86A;border:none;border-radius:6px;font-size:11px">🔳 Ver QR</button></div><div><span class=badge '+(d?'in':'out')+'>'+(d?'DENTRO':'FUERA')+'</span><br><button onclick="registrar(\''+a.id+'|'+a.nombre+'|'+a.placa+'\')">Marcar</button></div></div>';}).join('')||'No encontrado';}
-function exportCSV(){let csv='ID,Nombre,Placa,Entrada,Salida\n'+regs.map(r=>r.id+','+r.nombre+','+r.placa+','+r.entrada+','+(r.salida||'')).join('\n');let b=new Blob([csv],{type:'text/csv'});let u=URL.createObjectURL(b);let a=document.createElement('a');a.href=u;a.download='Ascender.csv';a.click();}
-render();
+window.genPass=()=>{let id=document.getElementById('id').value.toUpperCase().trim();let pl=document.getElementById('placa').value.toUpperCase().trim();let no=document.getElementById('nombre').value.toUpperCase().trim(); if(!id||!pl) return alert('Falta ID y Placa'); let c={id,nombre:no,placa:pl,modelo:document.getElementById('modelo').value,color:document.getElementById('color').value}; set(ref(db,'autos/'+id),c); mostrarQR(c.id+'|'+c.nombre+'|'+c.placa,true);}
+window.mostrarQR=(txt,nu)=>{let box=document.getElementById('qrBox'); box.style.display='block'; let p=txt.split('|'); let url='https://api.qrserver.com/v1/create-qr-code/?size=400x400&data='+encodeURIComponent(txt); box.innerHTML=`<img src="${url}" style="width:200px;height:200px;margin:auto"><div style="margin-top:10px"><b style="font-size:18px">${p[1]}</b><br><span style="color:#2563eb;font-weight:800">${p[2]}</span><br><small>${nu?'✅ GENERADO':'🔄 RECUPERADO'} - ${p[0]}</small><br><br><button onclick="window.open('${url}')" class="btn btn-dark" style="width:auto;padding:8px 16px">🖨️ DESCARGAR / IMPRIMIR QR</button></div>`; box.scrollIntoView({behavior:'smooth'});}
+let qr; window.startScan=()=>{qr=new Html5Qrcode('reader'); qr.start({facingMode:'environment'},{fps:10,qrbox:250},t=>{window.registrar(t);qr.stop();document.getElementById('reader').innerHTML='';},()=>{});}
+window.registrar=(code)=>{let id=code.split('|')[0];let pl=code.split('|')[2]||code; let a=autos.find(x=>x.id==id||x.placa==pl); if(!a) return alert('No encontrado '+code); let k=Object.keys(regsRaw).find(k=>regsRaw[k].id==a.id&&!regsRaw[k].salida); if(k){update(ref(db,'regs/'+k),{salida:new Date().toLocaleString('es-MX')}); alert('🔴 SALIDA: '+a.nombre);} else {push(regsRef,{id:a.id,nombre:a.nombre,placa:a.placa,entrada:new Date().toLocaleString('es-MX'),salida:null,ts:Date.now()}); alert('🟢 ENTRADA: '+a.nombre);}}
+window.render=()=>{let d=regs.filter(r=>!r.salida); document.getElementById('count').innerText=d.length; document.getElementById('inside').innerHTML=d.map(r=>`<div class="list"><span><b>${r.placa}</b> - ${r.nombre}</span><span class="badge in">DENTRO</span></div>`).join('')||'<small style="color:#94a3b8">Nadie dentro</small>';}
+window.search=()=>{let q=document.getElementById('search').value.toUpperCase(); let res=document.getElementById('searchRes'); if(!q){res.innerHTML='';return;} let f=autos.filter(a=>a.placa.includes(q)||a.nombre.includes(q)); res.innerHTML=f.map(a=>{let de=regs.find(x=>x.id==a.id&&!x.salida); return `<div class="list"><div><b>${a.nombre}</b><br>${a.placa} <small style="color:#64748b">${a.id}</small><br><button onclick="mostrarQR('${a.id}|${a.nombre}|${a.placa}')" style="margin-top:6px;padding:6px 10px;background:#0f172a;color:#fff;border:none;border-radius:6px;font-size:11px">🔳 Ver QR</button></div><div style="text-align:right"><span class="badge ${de?'in':'out'}">${de?'DENTRO':'FUERA'}</span><br><button onclick="registrar('${a.id}|${a.nombre}|${a.placa}')" class="btn ${de?'btn-red':'btn-green'}" style="padding:6px 10px;font-size:11px;margin-top:6px;width:auto">${de?'Marcar Salida':'Marcar Entrada'}</button></div></div>`}).join('')||'No encontrado';}
+window.exportCSV=()=>{let csv='ID,Nombre,Placa,Entrada,Salida\n'+regs.map(r=>`${r.id},${r.nombre},${r.placa},${r.entrada},${r.salida||''}`).join('\n'); let b=new Blob([csv],{type:'text/csv'}); let u=URL.createObjectURL(b); let a=document.createElement('a'); a.href=u; a.download='Ascender.csv'; a.click();}
 </script>
 </body>
 </html>
