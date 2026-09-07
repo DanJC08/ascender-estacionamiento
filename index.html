@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iglesia Ascender</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;font-family:system-ui}body{margin:0;background:#0A1931;padding:12px;color:#fff}
+.header{background:#fff;color:#0A1931;padding:14px;border-radius:14px;display:flex;align-items:center;gap:12px}
+.card{background:#fff;color:#0A1931;border-radius:12px;padding:14px;margin:12px 0}
+.btn{width:100%;padding:14px;background:#0A1931;color:#C9A86A;border:none;border-radius:10px;font-weight:800;margin:6px 0;cursor:pointer}
+.btn-blue{background:#0d6efd;color:#fff} input{width:100%;padding:11px;border:1px solid #ccc;border-radius:8px;margin:4px 0}
+.badge{padding:4px 8px;border-radius:6px;font-size:12px}.in{background:#dcfce7;color:#166534}.out{background:#fee2e2;color:#991b1b}
+.list{border-bottom:1px solid #eee;padding:10px 0;display:flex;justify-content:space-between}
+#qrBox{background:#fff;padding:16px;border-radius:12px;text-align:center;margin-top:12px;border:2px solid #0A1931;display:none}
+#qrBox img{width:220px;height:220px;margin:0 auto;display:block}
+</style>
+</head>
+<body>
+<div class="header"><div style="width:64px;height:64px;background:#0A1931;border-radius:14px;display:flex;align-items:center;justify-content:center;border:2px solid #C9A86A;flex-shrink:0">
+  <span style="font-weight:900;font-size:28px;background: linear-gradient(135deg, #8A2BE2 0%, #FF69B4 50%, #FF8C00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">AS</span>
+</div><div><b>ASCENDER IGLESIA</b><br>PASE ESTACIONAMIENTO<br><small>Donado por CC INNOVACION</small></div></div>
+
+<div class="card"><h3>Escanear Entrada / Salida</h3><button class="btn btn-blue" onclick="startScan()">INICIAR ESCANER QR</button><div id="reader"></div></div>
+<div class="card"><h3>Autos Dentro: <span id="count">0</span></h3><div id="inside"></div><button class="btn" style="background:#C9A86A;color:#0A1931" onclick="exportCSV()">EXPORTAR REPORTE</button></div>
+<div class="card"><h3>Buscar Dueño</h3><input id="search" placeholder="JXA306A" oninput="search()"><div id="searchRes"></div></div>
+
+<div class="card"><h3>Registrar Nuevo Auto</h3>
+
+<input id="id" placeholder="ID CC-004"><input id="nombre" placeholder="Nombre"><input id="placa" placeholder="Placa"><input id="modelo" placeholder="Modelo"><input id="color" placeholder="Color">
+<button class="btn btn-blue" onclick="genPass()">REGISTRAR Y GENERAR QR</button>
+<div id="qrBox"></div>
+</div>
+
+<script>
+let autos=JSON.parse(localStorage.getItem('autosAscender')||'null')||[
+{"id":"CC-001","nombre":"CELESTE NAJAR","placa":"JUC4688","modelo":"Cruze Cruze","color":"Rojo"},
+{"id":"CC-002","nombre":"GERARDO COMPARAN","placa":"LCL359A","modelo":"Chevrolet Truck 2026","color":"Gris Tiburón"},
+{"id":"CC-003","nombre":"SILVIA SANDOVAL","placa":"HVM474A","modelo":"Nissan Versa 2024","color":"Blanco"},
+{"id":"CC-004","nombre":"ESTHELA LARIOS","placa":"JFZ-270A","modelo":"Hyundai Creta","color":"Sin Datos"},
+{"id":"CC-005","nombre":"GERARDO ELIEZAR CRUZ","placa":"JTC4841","modelo":"Chevrolet Grove 2022","color":"Tinto"},
+{"id":"CC-006","nombre":"GABRIEL CAMARENA","placa":"KF6114A","modelo":"Nissan Frontier NP300","color":"Naranja"},
+{"id":"CC-007","nombre":"RUBEN KUAN","placa":"KXMF65A","modelo":"Nissan Tiida","color":"Plata"},
+{"id":"CC-008","nombre":"EFRAIN CHAVARRIA","placa":"KJX5554","modelo":"Kia Rio","color":"Gris"},
+{"id":"CC-009","nombre":"CHAVARRIA AVILA","placa":"JAL76661","modelo":"Mitsubishi L200","color":"Blanca"},
+{"id":"CC-010","nombre":"ISRAEL DE LA ROSA","placa":"JSP3379","modelo":"Hyundai Gran I-10","color":"Rojo"},
+{"id":"CC-011","nombre":"GLORIA ACEVES","placa":"SEV318A","modelo":"Nissan Versa 2016","color":"Negro"},
+{"id":"CC-012","nombre":"JESUS CABRERA","placa":"HYG090B","modelo":"Hyundai Gran I-10 2022","color":"Plata"},
+{"id":"CC-013","nombre":"ANGEL ARAUJO","placa":"KXL346A","modelo":"Hyundai Hiunday","color":"Blanco"},
+{"id":"CC-014","nombre":"GAEL SANCHEZ","placa":"72N254","modelo":"Toyota Toyota","color":"Blanco"},
+{"id":"CC-015","nombre":"OSCAR J. PONCE","placa":"KCK255A","modelo":"Toyota Toyota","color":"Bronce"},
+{"id":"CC-016","nombre":"SUSANA ESPINOZA","placa":"RRW078C","modelo":"Nissan Kicks","color":"Gris"},
+{"id":"CC-017","nombre":"GILBERTO AGUILAR","placa":"SSH485B","modelo":"Chevrolet Tracker","color":"Blanca"},
+{"id":"CC-018","nombre":"MIRNA MORA","placa":"JSS4458","modelo":"Chevrolet Aveo","color":"Gris"},
+{"id":"CC-019","nombre":"OSCAR DE LA TORRE","placa":"54N847","modelo":"Geely Geely","color":"Gris"},
+{"id":"CC-020","nombre":"JOSIAS MORA","placa":"JTR9713","modelo":"Chevrolet Aveo","color":"Ocre"},
+{"id":"CC-021","nombre":"JOEL ORTEGA M","placa":"JRX1614","modelo":"Hyundai Hyundai","color":"Azul marino"},
+{"id":"CC-022","nombre":"JOSE ZEPEDA","placa":"JX44994","modelo":"Chevrolet Tornado","color":"Blanca"},
+{"id":"CC-023","nombre":"EMMA CRUZ","placa":"XXXYYZ","modelo":"Chevrolet Optra","color":"Blanco"},
+{"id":"CC-024","nombre":"SILVIA LUPERCIO","placa":"JPU668A","modelo":"Dodge Caravan","color":"Blanca"},
+{"id":"CC-025","nombre":"JORGE AGUILAR","placa":"LFM553A","modelo":"Audi y Creta 2020 y 2026","color":"Gris y Negro"},
+{"id":"CC-026","nombre":"JORGE AGUILAR","placa":"JCM878A","modelo":"Hiunday Creta","color":"Negro"},
+{"id":"CC-027","nombre":"REBECA LOPEZ","placa":"JSL9644","modelo":"Mitsubishi Mirage","color":"Rojo"},
+{"id":"CC-028","nombre":"HECTOR PRADO","placa":"XXXYZZ","modelo":"Volkswagen Gol","color":"Blanco"},
+{"id":"CC-029","nombre":"MARIO DEL RIO","placa":"JGB230A","modelo":"Chevrolet Beat","color":"Rojo"},
+{"id":"CC-030","nombre":"BETTY MUNOZ","placa":"JZF1614","modelo":"Nissan Pathfinder","color":"Rojo"},
+{"id":"CC-031","nombre":"JULIO PEREZ","placa":"JSX0034","modelo":"Honda Pilot","color":"Blanco"},
+{"id":"CC-032","nombre":"MOISES RAMIREZ","placa":"XXXYYY","modelo":"Ram Adventure","color":"Roja"},
+{"id":"CC-033","nombre":"BRENDA YANEZ","placa":"Y85NP2","modelo":"Nissan Versa","color":"Plata"},
+{"id":"CC-034","nombre":"CESAR VAZQUEZ","placa":"LBL811A","modelo":"Nissan Sentra","color":"Blanco"},
+{"id":"CC-035","nombre":"KARLA ROBLES","placa":"HWX209A","modelo":"Dodge Nitro","color":"Plata"},
+{"id":"CC-036","nombre":"JOSE TORRES","placa":"RKW4335","modelo":"MG MG 5","color":"Blanco"},
+{"id":"CC-037","nombre":"DAYDEE HERNANDEZ","placa":"49N516","modelo":"Toyota Camry","color":"Rojo quemado"},
+{"id":"CC-038","nombre":"MAURICIO GONZALEZ","placa":"KXW962A","modelo":"Nissan Nissan","color":"Blanco"},
+{"id":"CC-039","nombre":"ANGEL QUEZADA","placa":"KDM350A","modelo":"Mazda CX50","color":"Blanca"}
+];
+let regs=JSON.parse(localStorage.getItem('regsAscender')||'[]');
+function save(){localStorage.setItem('autosAscender',JSON.stringify(autos));localStorage.setItem('regsAscender',JSON.stringify(regs));render();}
+
+function genPass(){
+  let idV=document.getElementById('id').value.trim().toUpperCase();
+  let nomV=document.getElementById('nombre').value.trim().toUpperCase();
+  let placaV=document.getElementById('placa').value.trim().toUpperCase();
+  if(!idV||!placaV) return alert('Falta ID y Placa');
+  let c={id:idV,nombre:nomV,placa:placaV,modelo:document.getElementById('modelo').value, color:document.getElementById('color').value};
+  let e=autos.find(a=>a.id==c.id); if(e) Object.assign(e,c); else autos.push(c);
+  save(); mostrarQR(c.id+'|'+c.nombre+'|'+c.placa, true);
+}
+
+function mostrarQR(texto, esNuevo){
+  let box=document.getElementById('qrBox');
+  box.style.display='block';
+  let p=texto.split('|');
+  let urlQR = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(texto);
+  box.innerHTML = `<img src="${urlQR}" alt="QR"><div style="margin-top:12px;color:#0A1931"><b style="font-size:18px">${p[1]}</b><br>${p[2]}<br><small style="color:${esNuevo?'green':'#0A1931'}">${esNuevo?'✅ QR GENERADO':'🔄 QR RECUPERADO'} - ${p[0]}</small><br><br><button onclick="window.open('${urlQR}')" style="padding:8px 12px;background:#0A1931;color:#C9A86A;border-radius:8px;border:none">DESCARGAR / IMPRIMIR QR</button></div>`;
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+let qr;function startScan(){qr=new Html5Qrcode('reader');qr.start({facingMode:'environment'},{fps:10,qrbox:250},(txt)=>{registrar(txt);qr.stop();document.getElementById('reader').innerHTML='';},()=>{});}
+function registrar(code){let p=code.split('|');let id=p[0];let placa=p[2]||code;let auto=autos.find(a=>a.id==id||a.placa==placa);if(!auto)return alert('No encontrado: '+code);let ab=regs.find(r=>r.id==auto.id&&!r.salida);if(ab){ab.salida=new Date().toLocaleString();alert('SALIDA: '+auto.nombre);}else{regs.push({id:auto.id,nombre:auto.nombre,placa:auto.placa,entrada:new Date().toLocaleString(),salida:null});alert('ENTRADA: '+auto.nombre);}save();}
+function render(){let dentro=regs.filter(r=>!r.salida);document.getElementById('count').innerText=dentro.length;document.getElementById('inside').innerHTML=dentro.map(r=>'<div class=list><span><b>'+r.placa+'</b> - '+r.nombre+'</span><span class=badge in>DENTRO</span></div>').join('')||'<small>Nadie dentro</small>';search();}
+function search(){let q=document.getElementById('search').value.toUpperCase();let res=document.getElementById('searchRes');if(!q){res.innerHTML='';return;}let f=autos.filter(a=>a.placa.includes(q)||a.nombre.toUpperCase().includes(q));res.innerHTML=f.map(a=>{let d=regs.find(r=>r.id==a.id&&!r.salida);return '<div class=list><div><b>'+a.nombre+'</b><br>'+a.placa+'<br><small>'+a.id+'</small><br><button onclick="mostrarQR(\''+a.id+'|'+a.nombre+'|'+a.placa+'\')" style="margin-top:6px;padding:5px 10px;background:#0A1931;color:#C9A86A;border:none;border-radius:6px;font-size:11px">🔳 Ver QR</button></div><div><span class=badge '+(d?'in':'out')+'>'+(d?'DENTRO':'FUERA')+'</span><br><button onclick="registrar(\''+a.id+'|'+a.nombre+'|'+a.placa+'\')">Marcar</button></div></div>';}).join('')||'No encontrado';}
+function exportCSV(){let csv='ID,Nombre,Placa,Entrada,Salida\n'+regs.map(r=>r.id+','+r.nombre+','+r.placa+','+r.entrada+','+(r.salida||'')).join('\n');let b=new Blob([csv],{type:'text/csv'});let u=URL.createObjectURL(b);let a=document.createElement('a');a.href=u;a.download='Ascender.csv';a.click();}
+render();
+</script>
+</body>
+</html>
